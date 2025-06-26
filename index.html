@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlipBook with PDF Download</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at 50% 50%, hsl(187 20% 88%) 30%, hsl(149 20% 94%) 100%);
+      color: hsl(180, 68%, 5%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 1em;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      width: 100%;
+    }
+    header button {
+      padding: 0.5em 1em;
+      background: hsl(200, 70%, 40%);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+      border-radius: 5px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 100%;
+      max-width: 595.2756pt;
+      aspect-ratio: 595.2756 / 841.8898;
+      padding: 2em;
+    }
+    .book {
+      --c: 0;
+      position: relative;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform-style: preserve-3d;
+      transition: translate 1s;
+      translate: calc(min(var(--c), 1) * 50%) 0%;
+      rotate: 1 0 0 30deg;
+      counter-reset: page -1;
+    }
+    .page {
+      --thickness: 4;
+      flex: none;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      font-size: 1em;
+      pointer-events: all;
+      user-select: none;
+      transform-style: preserve-3d;
+      transform-origin: left center;
+      transition: transform 1s, rotate 1s ease-in calc((min(var(--i), var(--c)) - max(var(--i), var(--c))) * 50ms);
+      translate: calc(var(--i) * -100%) 0px 0px;
+      transform: translateZ(calc((var(--c) - var(--i) - 0.5) * calc(var(--thickness) * 0.23em)));
+      rotate: 0 1 0 calc(clamp(0, var(--c) - var(--i), 1) * -180deg);
+      box-shadow: 0em 0.5em 1em -0.2em #00000020;
+    }
+    .front, .back {
+      position: relative;
+      flex: none;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      background-color: #fff;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2em;
+      border: 1px solid #0002;
+    }
+    .front::after, .back::after {
+      position: absolute;
+      bottom: 1em;
+      counter-increment: page;
+      content: counter(page) ".";
+      font-size: 0.8em;
+    }
+    .front::after { right: 1em; }
+    .back::after { left: 1em; }
+    .front img, .back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .back {
+      translate: -100% 0;
+      rotate: 0 1 0 180deg;
+    }
+    .cover {
+      /* Optional cover-specific styles */
+    }
+    button.nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: hsl(200, 70%, 40%);
+      color: white;
+      border: none;
+      font-size: 2em;
+      width: 2em;
+      height: 2em;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
+    }
+    #prevBtn { left: -12em; }
+    #nextBtn { right: -12em; }
+
+    /* Responsive Design for Mobile */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding: 1em;
+        aspect-ratio: auto;
+      }
+
+      .book {
+        rotate: none;
+        translate: 0 0;
+        transform: scale(0.95);
+      }
+
+      .page {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .front, .back {
+        height: auto;
+        padding: 1em;
+        font-size: 0.9em;
+      }
+
+      .front img, .back img {
+        height: auto;
+      }
+
+      .nav-btn {
+        font-size: 1.5em;
+        width: 2.5em;
+        height: 2.5em;
+      }
+
+      #prevBtn, #nextBtn {
+        top: auto;
+        bottom: 1em;
+        transform: none;
+      }
+
+      #prevBtn { left: 0.5em; }
+      #nextBtn { right: 0.5em; }
+
+      header {
+        justify-content: center;
+      }
+
+      header button {
+        width: 90%;
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button onclick="downloadPDF()">Download PDF</button>
+  </header>
+
+  <div class="container">
+    <button id="prevBtn" class="nav-btn">⟨</button>
+    <div class="book" id="book">
+      <div class="page">
+        <div class="front cover page-1-front">
+         <img src="Nachiketa-01.jpg" alt="Nachiketa Page 1">
+        </div>
+        <div class="back page-1-back">
+         <img src="Nachiketa-02.jpg" alt="Nachiketa Page 2">
+        </div>
+      </div>
+      <div class="page">
+        <div class="front page-2-front">
+          <img src="Nachiketa-03.jpg" alt="Nachiketa Page 3">
+        </div>
+        <div class="back page-2-back">
+         <img src="Nachiketa-04.jpg" alt="Nachiketa Page 4">
+        </div>
+      </div>
+      <div class="page">
+        <div class="front page-3-front">
+          <img src="Nachiketa-05.jpg" alt="Nachiketa Page 5">
+        </div>
+        <div class="back page-3-back">
+           <img src="Nachiketa-06.jpg" alt="Nachiketa Page 6">
+        </div>
+      </div>
+    </div>
+    <button id="nextBtn" class="nav-btn">⟩</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+  <script>
+    const book = document.getElementById("book");
+    let currentPage = 0;
+    const pages = book.querySelectorAll(".page");
+
+    pages.forEach((page, idx) => page.style.setProperty("--i", idx));
+    book.style.setProperty("--c", currentPage);
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (currentPage < pages.length) {
+        currentPage++;
+        book.style.setProperty("--c", currentPage);
+      }
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (currentPage > 0) {
+        currentPage--;
+        book.style.setProperty("--c", currentPage);
+      }
+    });
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+
+      const pdfWidth = doc.internal.pageSize.getWidth();
+      const pdfHeight = doc.internal.pageSize.getHeight();
+      const allPages = document.querySelectorAll(".page");
+
+      for (let i = 0; i < allPages.length; i++) {
+        const page = allPages[i];
+        const frontEl = page.querySelector(".front");
+        const backEl = page.querySelector(".back");
+
+        if (frontEl) {
+          if (i > 0) doc.addPage();
+          await addPageToPdf(doc, frontEl, pdfWidth, pdfHeight);
+        }
+
+        if (backEl) {
+          doc.addPage();
+          await addPageToPdf(doc, backEl, pdfWidth, pdfHeight);
+        }
+      }
+      doc.save("flipbook.pdf");
+    }
+
+    async function addPageToPdf(doc, element, pdfWidth, pdfHeight) {
+      const clone = element.cloneNode(true);
+      clone.style.position = "absolute";
+      clone.style.top = "-9999px";
+      clone.style.left = "0";
+      clone.style.width = `${pdfWidth}pt`;
+      clone.style.height = `${pdfHeight}pt`;
+      clone.style.transform = "none";
+      clone.style.rotate = "none";
+      clone.style.translate = "none";
+      clone.style.zIndex = "-1";
+      clone.style.backgroundColor = "#fff";
+
+      const images = clone.querySelectorAll('img');
+      const imageLoadPromises = Array.from(images).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      });
+      await Promise.all(imageLoadPromises);
+
+      document.body.appendChild(clone);
+      const canvas = await html2canvas(clone, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+        width: pdfWidth,
+        height: pdfHeight,
+        windowWidth: pdfWidth,
+        windowHeight: pdfHeight,
+      });
+      const imgData = canvas.toDataURL("image/png");
+      doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      document.body.removeChild(clone);
+    }
+  </script>
+</body>
+</html>
